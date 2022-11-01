@@ -35,7 +35,7 @@ TinyRenderer是一个从零开始用C++写一个光栅化渲染器，不依赖�
 #include "lib/tgaimage.h"
 
 const TGAColor white = TGAColor(255, 255, 255, 255);
-const TGAColor red   = TGAColor(255, 0,   0,   255);
+const TGAColor red = TGAColor(255, 0,   0,   255);
 
 int main(int argc, char* argv[]){
     TGAImage image(100, 100, TGAImage::RGB);
@@ -47,7 +47,7 @@ int main(int argc, char* argv[]){
         image.set(i, 10, red);
     }
 
-    image.set(1,1,red);
+    image.set(1, 1, red);
 
     // 垂直翻转，因为我们习惯性以左下角作为坐标原点
     image.flip_vertically();
