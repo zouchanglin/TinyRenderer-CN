@@ -244,11 +244,11 @@ triangle(vec2 points[3]) {
 
 伪代码有一点我很喜欢：初学者会乐于接受，有经验的程序员会犯难：“我写的是个啥！”，以及图形学专家会耸耸肩，说：“行吧，现实就是如此。”。在数以千计的线程中进行的大规模并行计算(当然是消费级计算机)，改变了思维方式。
 
-让我们开始吧：首先我们需要知道什么是[ 重心坐标 (barycentric coordinates) ](https://en.wikipedia.org/wiki/Barycentric_coordinate_system) 。已知在笛卡尔坐标系中有一个 2D 三角形 ABC 和一个点 P，我们的目标是计算出点 P 相对三角形 ABC 的重心坐标，也就是说我们需要用三个数字 (1-u-v, u, v) 表示点 P，就像这样：
+让我们开始吧：首先我们需要知道什么是[ 重心坐标 (barycentric coordinates) ](https://en.wikipedia.org/wiki/Barycentric_coordinate_system) 。已知在笛卡尔坐标系中有一个 2D 三角形 ABC 和一个点 P，我们的目标是计算出点 P 相对三角形 ABC 的重心坐标，也就是说我们需要用三个数字 $ (1-u-v, u, v) $ 表示点 P，就像这样：
 
 $P=(1-u-v) A+u B+v C$
 
-乍一看很吓人，实际上很简单：设想我们把三个权重 $(1-u-v, u, v) $ 分别施加到点 A、B 和 C 上，那么三角形重心正好在 P 上。也可以换种说法：P 点在以 $(A, \overrightarrow{A B}, \overrightarrow{A C}$) 为基的坐标系下，有坐标 $(u, v)$：
+乍一看很吓人，实际上很简单：设想我们把三个权重 $ (1-u-v, u, v) $ 分别施加到点 A、B 和 C 上，那么三角形重心正好在 P 上。也可以换种说法：P 点在以 $(A, \overrightarrow{A B}, \overrightarrow{A C}$) 为基的坐标系下，有坐标 $(u, v)$：
 
 $$ P=A+u \overrightarrow{A B}+v \overrightarrow{A C} $$
 
