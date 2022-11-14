@@ -395,3 +395,90 @@ int main(int argc, char** argv) {
 ```
 
 ## 平面着色渲染
+
+我们已经知道如何用空三角形绘制模型。 让我们用随机颜色填充它们。下面的代码有助于我们看到代码是如何填充三角形的：
+
+```cpp
+int main(int argc, char* argv[]){
+    Model *model = nullptr;
+
+    if (2==argc) {
+        model = new Model(argv[1]);
+    } else {
+        model = new Model("../obj/african_head.obj");
+    }
+    TGAImage image(width, height, TGAImage::RGB);
+
+    for (int i=0; i<model->nfaces(); i++) {
+        std::vector<int> face = model->face(i);
+        Vec2i screen_coords[3];
+        for (int j=0; j<3; j++) {
+            Vec3f world_coords = model->vert(face[j]);
+            screen_coords[j] = Vec2i((world_coords.x+1.)*width/2., (world_coords.y+1.)*height/2.);
+        }
+        triangle(screen_coords, image, TGAColor(rand()%255, rand()%255, rand()%255, 255));
+    }
+
+    // 垂直翻转，因为我们习惯性以左下角作为坐标原点
+    image.flip_vertically();
+    image.write_tga_file("output.tga");
+
+    delete model;
+    return 0;
+}
+```
+
+这很简单：就如之前一样，我们遍历所有的三角形，将世界坐标转换为屏幕坐标，随后绘制三角形。在接下来的文章中，我将提供坐标系统的说明。现在，我们绘制的图片像这样：
+
+![](./image/13.png)
+
+让我们去掉这些有趣的颜色，加一些灯光上去。显而易见：在强度相同的光照下，与光线方向垂直的多边形面会被照得更亮。我们通过冯氏光照模型很容易得出这样的结论 ：当多边形与光线平行时，接收的光照是 0。其实照明强度等于光向量与给定三角形法线向量的点积，三角形的法线，可以通过三角形两条边做叉积得到。
+
+注意：这门课会把颜色的计算视为线性的，然而实际上 (128, 128, 128) 还没有 (255, 255, 255) 一半亮。也就是说，我们忽略 gamma 矫正，并容忍颜色亮度的误差。正常情况下会做一些次方倍率以接近真实情况，比如：
+
+![](./image/14.png)
+
+如果光向量与给定三角形法线向量的点积是负的，那么说明光是从背面打过来的，这个时候我们可以丢掉这种三角形。这使我们快速移除一些不可见的三角形，这种做法就被称为 [背面剔除(Back-face culling)](http://en.wikipedia.org/wiki/Back-face_culling)。
+
+```cpp
+int main(int argc, char* argv[]){
+    Model *model = nullptr;
+    if (2 == argc) {
+        model = new Model(argv[1]);
+    } else {
+        model = new Model("../obj/african_head.obj");
+    }
+    TGAImage image(width, height, TGAImage::RGB);
+
+    Vec3f light_dir(0,0,-1);
+    for (int i = 0; i < model->nfaces(); i++) {
+        std::vector<int> face = model -> face(i);
+        Vec2i screen_coords[3];
+        Vec3f world_coords[3];
+        for (int j = 0; j < 3; j++) {
+            Vec3f v = model -> vert(face[j]);
+            screen_coords[j] = Vec2i((v.x + 1.) * width / 2., (v.y + 1.) * height / 2.);
+            world_coords[j]  = v;
+        }
+        Vec3f n = (world_coords[2] - world_coords[0])^(world_coords[1] - world_coords[0]);
+        n.normalize();
+        float intensity = n * light_dir;
+        // 点积为负的就剔除掉
+        if (intensity > 0) {
+            triangle(screen_coords, image, TGAColor(intensity * 255, intensity * 255, intensity * 255, 255));
+        }
+    }
+
+    image.flip_vertically();
+    image.write_tga_file("output.tga");
+
+    delete model;
+    return 0;
+}
+```
+
+![](./image/15.png)
+
+请注意，嘴的内腔绘制在嘴唇的顶部。 这是因为我们对不可见的三角形进行了剪裁：它仅适用于凸形。 下次我们对 z-buffer 进行实现的时，我们将处理掉这个阴影。
+
+这是渲染的当前版本。 您是否发现我的脸部图像更详细？ 哈哈，开了个玩笑：其实那个模型里面有 25 万个三角形，而这个人工头部模型中大约有 1000 个。 但是我的脸确实是用上面的代码渲染的。 我向你保证在接下来的文章中，我们将为这张图片添加更多细节。
