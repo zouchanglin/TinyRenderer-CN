@@ -250,20 +250,23 @@ $P=(1-u-v) A+u B+v C$
 
 乍一看很吓人，实际上很简单：设想我们把三个权重 $(1-u-v, u, v) $ 分别施加到点 A、B 和 C 上，那么三角形重心正好在 P 上。也可以换种说法：P 点在以 $(A, \overrightarrow{A B}, \overrightarrow{A C}$) 为基的坐标系下，有坐标 $(u, v)$：
 
-$$P=A+u \overrightarrow{A B}+v \overrightarrow{A C}$$
+$$ P=A+u \overrightarrow{A B}+v \overrightarrow{A C} $$
 
-我们目前有向量$\overrightarrow{A B}, \overrightarrow{A C}$ 和 $\overrightarrow{A P}$ ，找到 u、v 以满足下面的约束：
+我们目前有向量 $\overrightarrow{A B}, \overrightarrow{A C}$  和 $\overrightarrow{A P}$ ，找到 u、v 以满足下面的约束：
 
 $$u \overrightarrow{A B}+v \overrightarrow{A C}+\overrightarrow{P A}=\overrightarrow{0}$$
 
 向量等式非常简单，只是由两个变量组成的线性系统：
+
 $$
 \left\{\begin{array}{l}
 u \overrightarrow{A B}_{x}+v \overrightarrow{A C}_{x}+\overrightarrow{P A}_{x}=0 \\
 u \overrightarrow{A B}_{y}+v \overrightarrow{A C}_{y}+\overrightarrow{P A}_{y}=0
 \end{array}\right.
 $$
+
 我很懒，不想以学者的方式解决线性系统。 让我们把它写成矩阵形式：
+
 $$
 \left\{\begin{array}{l}
 {\left[\begin{array}{lll}
@@ -282,6 +285,7 @@ u & v & 1
 \end{array}\right]=0}
 \end{array}\right.
 $$
+
 这说明，我们要得出的向量 $(u, v, 1)$ 与 $(ABx, ACx, PAx)$ 和 $(ABy, ACy, PAy)$ 都垂直！我希望你能明白我的意思。小提示：要得到与同一平面内的两条直线都垂直的直线，一个 [叉积](https://en.wikipedia.org/wiki/Cross_product) 足矣。顺便考考你：如何用给定的两个端点，得到一个直线方程？
 
 那么，梳理下新的光栅化思路：我们迭代给定三角形的边界框的所有像素。 对于每个像素，我们计算其重心坐标。 如果它具有至少一个负分量，则该像素位于三角形之外。 可能直接看程序会更清楚：
