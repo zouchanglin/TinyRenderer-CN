@@ -169,7 +169,9 @@ int main(int argc, char* argv[]){
     }
     TGAImage image(width, height, TGAImage::RGB);
 
-    Vec3f light_dir(0,0,-1);
+    // 光线入射方向
+//    Vec3f light_dir(0,0,-1);
+    Vec3f light_dir(0, 0, -1);
     for (int i = 0; i < model->nfaces(); i++) {
         std::vector<int> face = model -> face(i);
         Vec2i screen_coords[3];
