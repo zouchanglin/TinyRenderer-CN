@@ -244,26 +244,29 @@ triangle(vec2 points[3]) {
 
 伪代码有一点我很喜欢：初学者会乐于接受，有经验的程序员会犯难：“我写的是个啥！”，以及图形学专家会耸耸肩，说：“行吧，现实就是如此。”。在数以千计的线程中进行的大规模并行计算(当然是消费级计算机)，改变了思维方式。
 
-让我们开始吧：首先我们需要知道什么是[ 重心坐标 (barycentric coordinates) ](https://en.wikipedia.org/wiki/Barycentric_coordinate_system) 。已知在笛卡尔坐标系中有一个 2D 三角形 ABC 和一个点 P，我们的目标是计算出点 P 相对三角形 ABC 的重心坐标，也就是说我们需要用三个数字 (1-u-v, u, v) 表示点 P，就像这样：
+让我们开始吧：首先我们需要知道什么是[ 重心坐标 (barycentric coordinates) ](https://en.wikipedia.org/wiki/Barycentric_coordinate_system) 。已知在笛卡尔坐标系中有一个 2D 三角形 ABC 和一个点 P，我们的目标是计算出点 P 相对三角形 ABC 的重心坐标，也就是说我们需要用三个数字 $(1-u-v, u, v)$ 表示点 P，就像这样：
 
 $P=(1-u-v) A+u B+v C$
 
-乍一看很吓人，实际上很简单：设想我们把三个权重 $(1-u-v, u, v) $ 分别施加到点 A、B 和 C 上，那么三角形重心正好在 P 上。也可以换种说法：P 点在以 $(A, \overrightarrow{A B}, \overrightarrow{A C}$) 为基的坐标系下，有坐标 $(u, v)$：
+乍一看很吓人，实际上很简单：设想我们把三个权重 $(1-u-v, u, v)$ 分别施加到点 A、B 和 C 上，那么三角形重心正好在 P 上。也可以换种说法：P 点在以 $(A, \overrightarrow{A B}, \overrightarrow{A C})$ 为基的坐标系下，有坐标 $(u, v)$：
 
-$$P=A+u \overrightarrow{A B}+v \overrightarrow{A C}$$
+$$ P=A+u \overrightarrow{A B}+v \overrightarrow{A C} $$
 
-我们目前有向量$\overrightarrow{A B}, \overrightarrow{A C}$ 和 $\overrightarrow{A P}$ ，找到 u、v 以满足下面的约束：
+我们目前有向量 $\overrightarrow{A B}, \overrightarrow{A C}$  和 $\overrightarrow{A P}$ ，找到 u、v 以满足下面的约束：
 
 $$u \overrightarrow{A B}+v \overrightarrow{A C}+\overrightarrow{P A}=\overrightarrow{0}$$
 
 向量等式非常简单，只是由两个变量组成的线性系统：
+
 $$
 \left\{\begin{array}{l}
 u \overrightarrow{A B}_{x}+v \overrightarrow{A C}_{x}+\overrightarrow{P A}_{x}=0 \\
 u \overrightarrow{A B}_{y}+v \overrightarrow{A C}_{y}+\overrightarrow{P A}_{y}=0
 \end{array}\right.
 $$
+
 我很懒，不想以学者的方式解决线性系统。 让我们把它写成矩阵形式：
+
 $$
 \left\{\begin{array}{l}
 {\left[\begin{array}{lll}
@@ -282,6 +285,7 @@ u & v & 1
 \end{array}\right]=0}
 \end{array}\right.
 $$
+
 这说明，我们要得出的向量 $(u, v, 1)$ 与 $(ABx, ACx, PAx)$ 和 $(ABy, ACy, PAy)$ 都垂直！我希望你能明白我的意思。小提示：要得到与同一平面内的两条直线都垂直的直线，一个 [叉积](https://en.wikipedia.org/wiki/Cross_product) 足矣。顺便考考你：如何用给定的两个端点，得到一个直线方程？
 
 那么，梳理下新的光栅化思路：我们迭代给定三角形的边界框的所有像素。 对于每个像素，我们计算其重心坐标。 如果它具有至少一个负分量，则该像素位于三角形之外。 可能直接看程序会更清楚：
@@ -343,10 +347,9 @@ barycentric() 函数计算了 P 在给定三角形中的重心坐标，我们已
 
 > 译者注：其实下面这种方式更简单，而且容易理解
 >
-> 给定一个包含点 A、B、C 和点 P 的三角形，我们想要找到一个向量  $ u、v、w$，使得 $P = u A + v B + w C$。换句话说，$(u,v,w)$  是 P 关于三角形 ABC 的重心坐标。
-> 	u = 三角形 PBC 的面积
-> 	v = 三角形 PCA 的面积
-> 	w = 三角形 PAB 的面积
+> 给定一个包含点 A、B、C 和点 P 的三角形，我们想要找到一个向量  $u、v、w$，使得 $P = u A + v B + w C$。换句话说， $(u,v,w)$ 是 P 关于三角形 ABC 的重心坐标。可以参考下图：
+
+![](./image/16.png)
 
 如果你想要约束 $u+v+w = 1$，则将这些数字除以三角形 ABC 本身的总面积，这里是代码：
 
