@@ -149,3 +149,6 @@ void triangle(Vec3f *pts, float *zbuffer, TGAImage &image, TGAColor color) {
 ```
 我们对上节课的源码进行了很少的改动以丢弃隐藏部分，这真是太棒了！这是渲染结果：
 ![](./image/27.png)
+> 译者注：同时我们也可以看看对应的深度图的样子
+![](./image/28.png)
+
