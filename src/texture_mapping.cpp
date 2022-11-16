@@ -66,35 +66,69 @@ Vec3f world2screen(Vec3f v) {
 }
 
 int main(int argc, char* argv[]){
+
+    TGAImage diffuseTexture = TGAImage();
+    bool readRet = diffuseTexture.read_tga_file("../obj/african_head_diffuse.tga");
+    if(!readRet) {
+        std::cerr << "readRet not exist" << std::endl;
+        return -1;
+    }
+
     Model *model;
     if (2 == argc) {
         model = new Model(argv[1]);
     } else {
-        model = new Model("../obj/african_head.obj");
+        model = new Model("../obj/african_head.obj",
+                          "../obj/african_head_diffuse.tga",
+                          nullptr,
+                          nullptr);
     }
     TGAImage image(width, height, TGAImage::RGB);
-    TGAImage zImage(width, height, TGAImage::RGBA);
+    TGAImage zImage(width, height, TGAImage::GRAYSCALE);
 
     // init z-buffer
     auto *zBuffer = new float[width * height];
     for (int i=width * height; i--; zBuffer[i] = -std::numeric_limits<float>::max());
 
     Vec3f light_dir(0, 0, -1);
-    for (int i = 0; i < model->nfaces(); i++) {
+
+
+    for (int i = 0; i < model-> nfaces(); i++) {
         std::vector<int> face = model->face(i);
         Vec3f pts[3];
         Vec3f world_coords[3];
+        Vec2f uvs[3];
+        TGAColor colors[3];
         for (int j = 0; j < 3; j++) {
             pts[j] = world2screen(model->vert(face[j]));
             world_coords[j] = model->vert(face[j]);
+            // 获得UV偏移
+            uvs[j] = model->uv(i,j);
+
+            colors[j] = model->diffuse(model->uv(i, j));
+//            std::cout << "colors[j].bgra = " << (int)colors[j].bgra[2] << ", " << (int)colors[j].bgra[1] << ", " << (int)colors[j].bgra[0] << std::endl;
         }
 
+//        int i1 = colors[0].bgra[2];
+        TGAColor final_color = TGAColor((colors[0].bgra[2] + colors[1].bgra[2] + colors[2].bgra[2])/3,
+                                        (colors[0].bgra[1] + colors[1].bgra[1] + colors[2].bgra[1])/3,
+                                        (colors[0].bgra[0] + colors[1].bgra[0] + colors[2].bgra[0])/3,
+                                        255);
+
+        std::cout << "final_color = " << (int)final_color.bgra[2] << ", " << (int)final_color.bgra[1] << ", " << (int)final_color.bgra[0] << std::endl;
         Vec3f n = (world_coords[2] - world_coords[0])^(world_coords[1] - world_coords[0]);
         n.normalize();
 
-        int intensity = (int)(n * light_dir * 255);
+        float intensity = n * light_dir;
 //        triangle(pts, zBuffer, image, TGAColor(rand()%255, rand()%255, rand()%255, 255), zImage);
-        triangle(pts, zBuffer, image, TGAColor(intensity, intensity, intensity, 255), zImage);
+//        triangle(pts, zBuffer, image, TGAColor(intensity, intensity, intensity, 255), zImage);
+
+        TGAColor color = TGAColor(final_color.bgra[2], final_color.bgra[1],
+                                         final_color[0], 255);
+        std::cout << "color = " << (int)color.bgra[2] << ", " << (int)color.bgra[1] << ", " << (int)color.bgra[0] << std::endl;
+        if(intensity > 0){
+            triangle(pts, zBuffer, image, color, zImage);
+        }
     }
 
     image.flip_vertically();

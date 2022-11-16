@@ -1,8 +1,8 @@
-#include "lib/tgaimage.h"
-#include "lib/geometry.h"
+#include "tgaimage.h"
+#include "geometry.h"
 #include <cmath>
 #include <iostream>
-#include "lib/model.h"
+#include "model.h"
 #include <vector>
 
 const TGAColor white = TGAColor(255, 255, 255, 255);
@@ -170,8 +170,8 @@ int main(int argc, char* argv[]){
     TGAImage image(width, height, TGAImage::RGB);
 
     // 光线入射方向
-//    Vec3f light_dir(0,0,-1);
-    Vec3f light_dir(0, 0, -1);
+    Vec3f light_dir(0,0,-1);
+//    Vec3f light_dir(0, 0, 1);
     for (int i = 0; i < model->nfaces(); i++) {
         std::vector<int> face = model -> face(i);
         Vec2i screen_coords[3];

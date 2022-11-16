@@ -1,7 +1,7 @@
-#include "lib/tgaimage.h"
+#include "tgaimage.h"
 #include <cmath>
 #include <iostream>
-#include "lib/model.h"
+#include "model.h"
 #include <vector>
 
 const TGAColor white = TGAColor(255, 255, 255, 255);
