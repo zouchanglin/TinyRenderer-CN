@@ -5,9 +5,10 @@ set(CMAKE_CXX_STANDARD 11)
 project(TinyRenderer)
 
 add_executable(${PROJECT_NAME}
-        src/texture_mapping.cpp
+        src/main.cpp
         src/tgaimage.cpp
         src/model.cpp
+        src/geometry.cpp
         )
 
 include_directories(
